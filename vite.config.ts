@@ -3,7 +3,7 @@ import basicSsl from "@vitejs/plugin-basic-ssl";
 import { viteSingleFile } from "vite-plugin-singlefile";
 import { VitePWA } from "vite-plugin-pwa";
 import { execSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { MAX_FILE_LABEL } from "./shared/protocol";
 import { MAX_SNIPPET_LABEL } from "./shared/snippet";
@@ -205,6 +205,13 @@ export default defineConfig(({ mode }) => {
       i18nPages({ siteUrl: SITE_URL, tokens: TOKENS, manifest: MANIFEST_BASE }),
       licenseBanner(pkg.version),
       diagnosticsEndpoint(pkg.version),
+      // Create .nojekyll file for GitHub Pages to ensure proper MIME types
+      {
+        name: "create-nojekyll",
+        closeBundle() {
+          writeFileSync(resolve(__dirname, "dist/.nojekyll"), "");
+        },
+      },
     ],
     build: {
       // Same ES2022/top-level-await floor as the standalone build above.
